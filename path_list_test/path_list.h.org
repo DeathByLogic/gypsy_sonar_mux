@@ -1,0 +1,316 @@
+#ifndef _PATHLIST_H
+#define _PATHLIST_H
+
+#include <Arduino.h>
+
+// Structure for each node
+typedef struct PathNode {
+  // Data Elements
+  float x;
+  float y;
+  
+  // Is this point fixed (not allowed to be moved)
+  boolean Fixed;
+  
+  // Pointers to Next & Prev
+  PathNode * Next;
+  PathNode * Prev;
+} PathNode;
+
+// Pointer to a node
+typedef PathNode * NodeLink;
+
+class PathList {
+  public:
+    // Constructor and Destructor
+    PathList();
+    ~PathList();
+    
+    // Return node count 
+    int Count();
+    
+    // Return first or last node
+    NodeLink First();
+    NodeLink Last();
+ 
+    // Add before or after node
+    void AddAfter(NodeLink node, float x, float y, boolean fixed);
+    void AddBefore(NodeLink node, float x, float y, boolean fixed);
+   
+    // Add first or last node
+    void AddFirst(float x, float y, boolean fixed);
+    void AddLast(float x, float y, boolean fixed);
+   
+    // Remove all nodes
+    void Clear();
+    //list copy();
+    
+    // Remove specific node
+    void Remove(NodeLink node);
+    
+    // Remove first or last node
+    void RemoveFirst();
+    void RemoveLast();
+    
+  private:
+    // Number of nodes in list
+    int Size;
+    
+    // Pointers to first and last nodes
+    NodeLink FirstNode;
+    NodeLink LastNode;
+};
+
+// Constructor
+PathList::PathList() {
+  // Set initial size of list to 0
+  Size = 0;
+  
+  // Set first and last nodes to null
+  FirstNode = NULL;
+  LastNode = NULL;
+}
+
+// Destructor
+PathList::~PathList() {
+  Clear();
+}
+
+//
+// List Properties
+//
+
+// Return node count 
+int PathList::Count() {
+  return Size;
+}
+
+// Return first node
+NodeLink PathList::First() {
+  return FirstNode;
+}
+
+// Return last node
+NodeLink PathList::Last() {
+  return LastNode; 
+}
+
+//
+// Add node functions
+//
+
+// Add after node
+void PathList::AddAfter(NodeLink node, float x, float y, boolean fixed) {
+  // Create link to new & next node
+  NodeLink nextNode;
+  
+  // Check if node is empty
+  if (node != NULL) {
+    // Save link to next node
+    nextNode = node->Next;
+    
+    // Create a new
+    NodeLink newNode = (NodeLink) new PathNode;
+    
+    // If new node created
+    if (newNode != NULL) {
+      // Save new node data
+      newNode->x = x;
+      newNode->y = y;
+      newNode->Fixed = fixed;
+      
+      // Set new node pointers
+      newNode->Next = nextNode;
+      newNode->Prev = node;
+      
+      // If not the last pointer
+      if (node == LastNode) {
+        // Update last node pointer
+        LastNode = newNode;
+      } else {
+        // Set next node previous pointer
+        nextNode->Prev = newNode;
+      }
+      
+      // Set prev node next pointer
+      node->Next = newNode;
+      
+      // Increase size      
+      Size++;
+      
+      /*
+      Serial.print("a: ");Serial.print(uint16_t(newNode), HEX);Serial.print(" ");
+      Serial.print("p: ");Serial.print(uint16_t(newNode->Prev), HEX);Serial.print(" ");
+      Serial.print("n: ");Serial.print(uint16_t(newNode->Next), HEX);Serial.println();
+      */
+    }
+  }
+}
+
+// Add before node
+void PathList::AddBefore(NodeLink node, float x, float y, boolean fixed) {
+  // Create link to new & next node
+  NodeLink prevNode;
+  
+  // Check if node is empty
+  if (node != NULL) {
+    // Save link to next node
+    prevNode = node->Prev;
+    
+    // Create a new
+    NodeLink newNode = (NodeLink) new PathNode;
+    
+    Serial.print("a: ");Serial.print(uint16_t(newNode), HEX);Serial.print(" ");
+    Serial.print("p: ");Serial.print(uint16_t(newNode->Prev), HEX);Serial.print(" ");
+    Serial.print("n: ");Serial.print(uint16_t(newNode->Next), HEX);Serial.println();
+    
+    // If new node created
+    if (newNode != NULL) {
+      // Save new node data
+      newNode->x = x;
+      newNode->y = y;
+      newNode->Fixed = fixed;
+      
+      // Set new node pointers
+      newNode->Prev = prevNode;
+      newNode->Next = node;
+      
+      if (node == FirstNode) {
+        // Change first node pointer
+        FirstNode = newNode;
+      } else {
+        // Set next node previous pointer
+        prevNode->Next = newNode;
+      }
+      
+      // Set prev node next pointer
+      node->Prev = newNode;
+      
+      // Increase Size
+      Size++;
+      
+      
+      Serial.print("a: ");Serial.print(uint16_t(newNode), HEX);Serial.print(" ");
+      Serial.print("p: ");Serial.print(uint16_t(newNode->Prev), HEX);Serial.print(" ");
+      Serial.print("n: ");Serial.print(uint16_t(newNode->Next), HEX);Serial.println();
+      
+    }
+  }
+}
+   
+// Add new first node
+void PathList::AddFirst(float x, float y, boolean fixed) {
+  // Check if node is empty
+  if (FirstNode == NULL) {
+    // Create a new node
+    NodeLink newNode = (NodeLink) new PathNode;
+    
+    Serial.print("a: ");Serial.print(uint16_t(newNode), HEX);Serial.print(" ");
+    Serial.print("p: ");Serial.print(uint16_t(newNode->Prev), HEX);Serial.print(" ");
+    Serial.print("n: ");Serial.print(uint16_t(newNode->Next), HEX);Serial.println();
+    
+    // If new node created
+    if (newNode != NULL) {
+      // Save new node data
+      newNode->x = x;
+      newNode->y = y;
+      newNode->Fixed = fixed;
+      
+      // Set first & last node pointer
+      LastNode = newNode;
+      FirstNode = newNode;
+      
+      // Set new node pointers
+      newNode->Next = NULL;
+      newNode->Prev = NULL;
+      
+      // Increase size
+      Size++;
+      
+      
+      Serial.print("a: ");Serial.print(uint16_t(newNode), HEX);Serial.print(" ");
+      Serial.print("p: ");Serial.print(uint16_t(newNode->Prev), HEX);Serial.print(" ");
+      Serial.print("n: ");Serial.print(uint16_t(newNode->Next), HEX);Serial.println();
+      
+    }
+  } else {
+    AddBefore(FirstNode, x, y, fixed); 
+  }
+}
+
+// Add new last node
+void PathList::AddLast(float x, float y, boolean fixed) {
+  if (LastNode == NULL) {
+    AddFirst(x, y, fixed);
+  } else {
+    AddAfter(LastNode, x, y, fixed);
+  }
+}
+
+//
+// Remove and clear node functions
+//
+
+// Remove all nodes
+void PathList::Clear() {
+  // Delete all nodes in list
+  for (NodeLink t = FirstNode; t != NULL; FirstNode = t) {
+    // Save new head of list
+    t = FirstNode->Next;
+    
+    // Delete old first node
+    delete FirstNode;
+  }
+  
+  // Reset size
+  Size = 0;
+  
+  // Reset pointers
+  FirstNode = NULL;
+  LastNode = NULL;
+}
+
+// Remove specific node
+void PathList::Remove(NodeLink node) {
+  // Create temp pointers
+  NodeLink prevNode;
+  NodeLink nextNode;
+  
+  // Check if node is empty
+  if (node != NULL) {
+    // Save previous and next nodes
+    prevNode = node->Prev;
+    nextNode = node->Next;
+    
+    // Remove node from list
+    if (node == FirstNode) {
+      FirstNode = nextNode;
+    } else {
+      prevNode->Next = nextNode;
+    }
+    
+    // Remove node from list
+    if (node == LastNode) {
+      LastNode = prevNode;
+    } else {
+      nextNode->Prev = prevNode;
+    }
+    
+    // Delete node from memory
+    delete node;
+    
+    // Decerment size
+    Size--;
+  }
+}
+    
+// Remove first or last node
+void PathList::RemoveFirst() {
+  Remove(FirstNode);
+}
+
+void PathList::RemoveLast() {
+  Remove(LastNode);
+}
+
+#endif
