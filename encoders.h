@@ -21,7 +21,7 @@ typedef enum {
 } EncoderState;
 
 // Function Prototypes
-void encoder_init(volatile char *, volatile unsigned long *);
+void encoder_init(volatile long *, volatile unsigned long *);
 void encoder_state();
 
 #endif

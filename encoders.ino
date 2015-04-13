@@ -5,11 +5,11 @@
 //
 
 // Encoder Counts
-volatile char *encoder_count;
+volatile long *encoder_count;
 volatile unsigned long *encoder_period;
 
 // Init encoder pins and configure interrupts
-void encoder_init(volatile char *count_reg, volatile unsigned long *period_reg) {
+void encoder_init(volatile long *count_reg, volatile unsigned long *period_reg) {
   // Set pointer to count & period register
   encoder_count = count_reg;
   encoder_period = period_reg;
